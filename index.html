@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Links</title>
+    <style>
+        /* Base Reset & Typography */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-start: #090909;
+            --bg-end: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.5);
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Moving Star Background System */
+        #stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: floatStar var(--duration) linear infinite;
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+
+        @keyframes floatStar {
+            0% { transform: translate(0, 0) scale(1); opacity: 0; }
+            20% { opacity: var(--max-opacity); }
+            80% { opacity: var(--max-opacity); }
+            100% { transform: translate(var(--move-x), var(--move-y)) scale(2); opacity: 0; }
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 640px;
+            padding: 80px 24px 40px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Logo Area */
+        #header-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 48px;
+        }
+
+        /* Circular Logo */
+        .logo-icon {
+            width: 96px;
+            height: 96px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 4px solid rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+            overflow: hidden; 
+            
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+            animation: popIn 1s var(--spring) forwards;
+        }
+
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease-out 0.15s forwards;
+        }
+
+        .logo-subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease-out 0.3s forwards;
+        }
+
+        /* Links Container */
+        .links-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Social Link Card */
+        .link-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 20px 24px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid var(--glass-border);
+            border-radius: 22px;
+            text-decoration: none;
+            color: var(--text-primary);
+            overflow: hidden;
+            outline: none;
+            
+            opacity: 0;
+            transition: transform 0.25s var(--spring), 
+                        box-shadow 0.3s ease, 
+                        border-color 0.3s ease;
+            will-change: transform, box-shadow;
+        }
+
+        /* Ambient Dynamic Subtle Background Glow */
+        .link-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.12) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Entrance Pop-up */
+        .link-card.in-view {
+            animation: springPopUp 0.7s var(--spring) forwards;
+        }
+
+        .link-card:focus-visible {
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+        }
+
+        @media (hover: hover) {
+            .link-card:hover {
+                transform: translateY(-4px) scale(1.015);
+                border-color: rgba(255, 255, 255, 0.35);
+                box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+                z-index: 2;
+            }
+            .link-card:hover::before {
+                opacity: 1;
+            }
+        }
+
+        .link-card:active {
+            transform: scale(0.98) translateY(-2px);
+            transition: transform 0.1s ease;
+        }
+
+        /* Button Star Sparkles */
+        .btn-sparkle {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            box-shadow: 0 0 8px #ffffff, 
+                        0 0 15px rgba(255, 255, 255, 0.9), 
+                        0 0 25px rgba(255, 255, 255, 0.4);
+            animation: sparkleFade 0.7s cubic-bezier(0.08, 0.8, 0.2, 1) forwards;
+            will-change: transform, opacity;
+        }
+
+        @keyframes sparkleFade {
+            0% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(calc(-50% + var(--sparkle-x)), calc(-50% + var(--sparkle-y))) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .card-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .icon-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+        }
+
+        .icon-box svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+
+        .platform-name {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .arrow-box {
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.4;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+
+        .arrow-box svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .link-card:hover .arrow-box {
+            opacity: 1;
+            transform: translateX(6px);
+        }
+
+        /* Material Ripple */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-anim 0.6s cubic-bezier(0.8, 0, 0.2, 1);
+            background-color: rgba(255, 255, 255, 0.15);
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 48px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+            opacity: 0;
+            animation: fadeUp 1s ease 1s forwards;
+            letter-spacing: 0.5px;
+        }
+
+        /* Keyframes */
+        @keyframes ripple-anim {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes springPopUp {
+            0% { opacity: 0; transform: translateY(40px) scale(0.9); }
+            60% { opacity: 1; transform: translateY(-3px) scale(1.01); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="stars-container"></div>
+
+    <main class="container">
+        <div id="header-area">
+            <div class="logo-icon">
+                <img src="https://i.ibb.co/xKCf0CqL/Chat-GPT-Image-May-12-2026-11-38-07-AM.png" alt="Profile Picture">
+            </div>
+            <h1 class="logo-title">The Motor Mouth</h1>
+            <p class="logo-subtitle">India's Favourite Voice Podcast with Entertainment</p>
+        </div>
+
+        <nav class="links-container" id="links-container">
+        </nav>
+
+        <footer class="footer">
+            <p id="trademark-text"></p>
+        </footer>
+    </main>
+
+    <script>
+        /** 
+         * 1. Drifting Background Stars
+         */
+        const starsContainer = document.getElementById('stars-container');
+        const starCount = 40; 
+
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            const size = Math.random() * 1.5 + 0.5;
+            star.classList.add('star');
+            star.style.left = `${Math.random() * 100}vw`;
+            star.style.top = `${Math.random() * 100}vh`;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            
+            star.style.setProperty('--duration', `${Math.random() * 15 + 10}s`);
+            star.style.setProperty('--move-x', `${(Math.random() - 0.5) * 100}px`);
+            star.style.setProperty('--move-y', `${(Math.random() - 0.5) * 150 - 50}px`);
+            star.style.setProperty('--max-opacity', Math.random() * 0.6 + 0.2);
+            star.style.animationDelay = `-${Math.random() * 20}s`;
+            
+            starsContainer.appendChild(star);
+        }
+
+        /**
+         * 2. SVGs Vector Repository
+         */
+        const svgLibrary = {
+            youtube: `<svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`,
+            instagram: `<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>`,
+            facebook: `<svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`,
+            spotify: `<svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.494 17.308c-.213.347-.667.453-1.013.24-2.787-1.707-6.293-2.093-10.427-1.147-.387.093-.787-.147-.88-.533-.093-.387.147-.787.533-.88 4.52-1.027 8.4-1.507 11.547.413.347.213.453.667.24 1.007zm1.466-3.267c-.267.44-.84.587-1.28.32-3.187-1.96-8.04-2.533-11.807-1.387-.493.147-1.013-.133-1.16-.627-.147-.493.133-1.013.627-1.16 4.307-1.307 9.653-.667 13.32 1.587.413.267.56.84.293 1.267zm.134-3.4c-3.813-2.267-10.12-2.48-13.8-1.36-.587.173-1.213-.147-1.387-.733-.173-.587.147-1.213.733-1.387 4.227-1.28 11.2-1.027 15.6 1.587.533.32.707 1.013.4 1.547-.32.52-.1.707-1.546.346z"/></svg>`,
+            snapchat: `<svg viewBox="0 0 24 24"><path d="M12 0c-3.766 0-7.234 2.502-7.234 6.452 0 1.206.417 2.417 1.042 3.197-.246.126-.523.327-.523.67 0 .524.717.844 1.433.844.152 0 .285-.015.395-.034.333.682.88 1.291 1.624 1.684.187.098.242.23.185.346-.425.867-1.921 1.79-1.921 3.21 0 .61.34 1.127.973 1.482.593.333 1.411.517 2.302.517.478 0 .963-.053 1.415-.152.174-.038.318.06.438.196.486.549 1.196.818 1.954.818.72 0 1.402-.244 1.884-.753.123-.131.272-.224.444-.183.473.111.986.172 1.492.172.891 0 1.71-.184 2.302-.517.633-.355.973-.872.973-1.482 0-1.42-1.496-2.343-1.921-3.21-.057-.116-.002-.248.185-.346.744-.393 1.29-.143 1.624-1.684.11.019.243.034.395.034.716 0 1.433-.32 1.433-.844 0-.343-.277-.544-.523-.67.625-.78 1.042-1.991 1.042-3.197C19.234 2.502 15.766 0 12 0z"/></svg>`,
+            email: `<svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>`
+        };
+
+        /**
+         * 3. Social Links Data
+         */
+        const linksData = [
+            { name: "Youtube", url: "https://youtube.com/@the_motormouth", svgKey: "youtube" },
+            { name: "MotorMouth Masti", url: "https://youtube.com/@motormouthmasti", svgKey: "youtube" },
+            { name: "TMM Clips", url: "https://youtube.com/@tmmsclips", svgKey: "youtube" },
+            { name: "TMM Shorts", url: "https://youtube.com/@tmmshorts1", svgKey: "youtube" },
+            { name: "Instagram", url: "https://www.instagram.com/the_motormouth", svgKey: "instagram" },
+            { name: "Motor Mouth Show", url: "https://www.instagram.com/themotormouthshow", svgKey: "instagram" },
+            { name: "Facebook", url: "https://www.facebook.com/sonalkaushalthemotormouth", svgKey: "facebook" },
+            { name: "Spotify", url: "https://open.spotify.com/show/79bzSqaxrmLqPBBuZYI63k?si=QtxiN5LHSGClBkVdme1cTQ", svgKey: "spotify" },
+            { name: "SnapChat", url: "https://www.snapchat.com/@the_motormouth", svgKey: "snapchat" },
+            { name: "Themotormouthshowpodcast@gmail.com", url: "mailto:Themotormouthshowpodcast@gmail.com", svgKey: "email" }
+        ];
+
+        /**
+         * 4. DOM Injection
+         */
+        const linksContainer = document.getElementById('links-container');
+        const arrowSvg = `<svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+
+        linksData.forEach((link, index) => {
+            const card = document.createElement('a');
+            
+            card.href = link.url; 
+            card.className = 'link-card in-view'; 
+            card.style.animationDelay = `${0.4 + (index * 0.1)}s`;
+            
+            // Grabs the respective vector string from the svgLibrary map
+            const platformIcon = svgLibrary[link.svgKey] || '';
+
+            card.innerHTML = `
+                <div class="card-content">
+                    <div class="icon-box">${platformIcon}</div>
+                    <span class="platform-name">${link.name}</span>
+                </div>
+                <div class="arrow-box">${arrowSvg}</div>
+            `;
+            
+            // Mouse trails and touch interactions
+            card.addEventListener('mousemove', handleCardTracking);
+            card.addEventListener('mousedown', createRipple);
+            card.addEventListener('touchstart', handleMobileTouch, { passive: true });
+
+            linksContainer.appendChild(card);
+        });
+
+        /**
+         * 5. Star Dust Generation Engine
+         */
+        let lastCreatedTime = 0;
+
+        function handleCardTracking(event) {
+            const card = event.currentTarget;
+            const rect = card.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`);
+            card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`);
+            
+            const currentTime = Date.now();
+            if (currentTime - lastCreatedTime > 20) {
+                spawnSparkle(card, x, y);
+                lastCreatedTime = currentTime;
+            }
+        }
+
+        function spawnSparkle(container, x, y) {
+            const sparkle = document.createElement('span');
+            const diameter = Math.random() * 3 + 3; 
+            
+            sparkle.classList.add('btn-sparkle');
+            sparkle.style.width = `${diameter}px`;
+            sparkle.style.height = `${diameter}px`;
+            sparkle.style.left = `${x}px`;
+            sparkle.style.top = `${y}px`;
+            
+            const driftX = (Math.random() - 0.5) * 50;
+            const driftY = (Math.random() - 0.5) * 50;
+            sparkle.style.setProperty('--sparkle-x', `${driftX}px`);
+            sparkle.style.setProperty('--sparkle-y', `${driftY}px`);
+            
+            container.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 700);
+        }
+
+        function handleMobileTouch(event) {
+            const card = event.currentTarget;
+            const rect = card.getBoundingClientRect();
+            const touch = event.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            for(let i=0; i<8; i++) {
+                setTimeout(() => spawnSparkle(card, x, y), i * 25);
+            }
+            createRipple(event);
+        }
+
+        /**
+         * 6. Material Touch Ripple
+         */
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+            
+            circle.style.width = circle.style.height = `${diameter}px`;
+            
+            const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+            const clientY = event.clientY || (event.touches && event.touches[0].clientY);
+            
+            circle.style.left = `${clientX - button.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${clientY - button.getBoundingClientRect().top - radius}px`;
+            circle.classList.add('ripple');
+            
+            const ripple = button.querySelector('.ripple');
+            if (ripple) ripple.remove();
+            
+            button.appendChild(circle);
+            setTimeout(() => circle.remove(), 600);
+        }
+
+        /**
+         * 7. Trademark
+         */
+        document.getElementById('trademark-text').innerHTML = `&copy; ${new Date().getFullYear()} The_MotorMouth. All rights reserved.`;
+    </script>
+</body>
+</html>
